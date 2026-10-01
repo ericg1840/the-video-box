@@ -22,17 +22,20 @@
   const AUTO_EVERY = 6;             // videos per block in Auto-Rotate
   const BUMPER_MS = 3400;           // how long the "NOW ENTERING" card stays up
   const MODE_KEY = "videobox.block";
+  const VHS_KEY = "videobox.vhs";
+  const OSD_MS = 2600;              // how long the "CH 08" display stays up
   const THURSDAY = new Date().getDay() === 4;
+  // ch = the channel number shown on the TV's on-screen display
   const BLOCKS = [
-    { id: "all", name: "All Hits", tag: "", sub: "Everything, everywhere", genres: null, color: "#ff2bd6" },
-    { id: "70s", name: "Totally 70s", tag: "70s", sub: "Disco, glam & AM gold", genres: ["70s"], color: "#ff7a1a" },
-    { id: "80s", name: "Totally 80s", tag: "80s", sub: "Big hair, bigger hooks", genres: ["80s"], color: "#ff2bd6" },
-    { id: "90s", name: "Totally 90s", tag: "90s", sub: "Pop, R&B & rock", genres: ["90s", "90s-rock"], color: "#19e3d0" },
-    { id: "grunge", name: "Grunge & Alt Hour", tag: "ALT", sub: "Flannel required", genres: ["90s-rock"], color: "#7b3cff" },
-    { id: "2000s", name: "2000s Flashback", tag: "00s", sub: "Y2K pop & nu-metal", genres: ["2000s"], color: "#ffe23d" },
-    { id: "country", name: "Country Roads", tag: "CNTRY", sub: "Boots, trucks & heartbreak", genres: ["country"], color: "#ff7a1a" },
-    { id: "throwback", name: THURSDAY ? "Throwback Thursday" : "Throwback Mix", tag: "MIX", sub: "70s · 80s · 90s", genres: ["70s", "80s", "90s", "90s-rock"], color: "#7b3cff" },
-    { id: "auto", name: "Auto-Rotate", tag: "AUTO", sub: `A new block every ${AUTO_EVERY} videos`, genres: null, color: "#ffe23d" },
+    { id: "all", ch: 3, name: "All Hits", tag: "", sub: "Everything, everywhere", genres: null, color: "#ff2bd6" },
+    { id: "70s", ch: 7, name: "Totally 70s", tag: "70s", sub: "Disco, glam & AM gold", genres: ["70s"], color: "#ff7a1a" },
+    { id: "80s", ch: 8, name: "Totally 80s", tag: "80s", sub: "Big hair, bigger hooks", genres: ["80s"], color: "#ff2bd6" },
+    { id: "90s", ch: 9, name: "Totally 90s", tag: "90s", sub: "Pop, R&B & rock", genres: ["90s", "90s-rock"], color: "#19e3d0" },
+    { id: "grunge", ch: 11, name: "Grunge & Alt Hour", tag: "ALT", sub: "Flannel required", genres: ["90s-rock"], color: "#7b3cff" },
+    { id: "2000s", ch: 12, name: "2000s Flashback", tag: "00s", sub: "Y2K pop & nu-metal", genres: ["2000s"], color: "#ffe23d" },
+    { id: "country", ch: 13, name: "Country Roads", tag: "CNTRY", sub: "Boots, trucks & heartbreak", genres: ["country"], color: "#ff7a1a" },
+    { id: "throwback", ch: 14, name: THURSDAY ? "Throwback Thursday" : "Throwback Mix", tag: "MIX", sub: "70s · 80s · 90s", genres: ["70s", "80s", "90s", "90s-rock"], color: "#7b3cff" },
+    { id: "auto", ch: 15, name: "Auto-Rotate", tag: "AUTO", sub: `A new block every ${AUTO_EVERY} videos`, genres: null, color: "#ffe23d" },
   ];
   const BLOCK_BY_ID = Object.fromEntries(BLOCKS.map((b) => [b.id, b]));
   const AUTO_ROTATION = ["70s", "80s", "90s", "grunge", "2000s", "country"];
@@ -69,6 +72,16 @@
     ltFrom: $("lt-from"),
     bugCode: $("bug-code"),
     bugBlock: $("bug-block"),
+    screen: document.querySelector(".tv-screen"),
+    picture: $("picture"),
+    vhs: $("vhs"),
+    osd: $("osd"),
+    osdMain: $("osd-main"),
+    osdSub: $("osd-sub"),
+    powerToggle: $("power-toggle"),
+    chUp: $("ch-up"),
+    chDown: $("ch-down"),
+    vhsToggle: $("vhs-toggle"),
     bumper: $("bumper"),
     bumperName: $("bumper-name"),
     bumperSub: $("bumper-sub"),
@@ -102,6 +115,11 @@
   let autoIndex = 0;         // position in AUTO_ROTATION while mode === "auto"
   let autoCount = 0;         // videos played in the current auto block
   let bumperTimer = 0;
+  let osdTimer = 0;
+  let vhsTimer = 0;          // schedules the next random tracking glitch
+  let glitchTimer = 0;
+  let vhsOn = loadVhs();
+  let powerTimers = [];
   let consecutiveErrors = 0;
   let lowerThirdTimer = 0;
   let lcdResetTimer = 0;
@@ -205,7 +223,15 @@
     if (poweredOn) {
       playNext();
       showBumper();
+      showChannelOsd();
+      vhsGlitch(1400);
     }
+  }
+
+  // CH▲ / CH▼: step through the programming blocks like TV channels.
+  function stepChannel(dir) {
+    const i = BLOCKS.findIndex((b) => b.id === mode);
+    setMode(BLOCKS[(i + dir + BLOCKS.length) % BLOCKS.length].id);
   }
 
   function advanceAuto() {
@@ -214,6 +240,7 @@
     resetUpcoming();
     renderGuide();
     showBumper();
+    showChannelOsd();
   }
 
   function drawRandom() {
@@ -272,19 +299,61 @@
     autoCount++;
     renderGuideStatus();
     burstStatic();
+    if (Math.random() < 0.25) vhsGlitch(900);
     if (playerReady) player.loadVideoById(item.video.id);
     renderNowPlaying();
     renderQueue();
     renderMenu();
   }
 
+  function later(fn, ms) { powerTimers.push(setTimeout(fn, ms)); }
+  function clearPowerTimers() { powerTimers.forEach(clearTimeout); powerTimers = []; }
+
   function powerOn() {
     if (poweredOn) return;
     poweredOn = true;
+    clearPowerTimers();
+    els.screen.classList.remove("dot");
     els.powerScreen.hidden = true;
+    els.picture.classList.remove("crt-off");
+    els.picture.classList.add("crt-on");
+    later(() => els.picture.classList.remove("crt-on"), 700);
     els.led.classList.add("on");
+    els.powerToggle.classList.add("on");
+    sweep(70, 400, 0.18, 0.06);
     playNext();
     showBumper();
+    showChannelOsd();
+    scheduleVhs();
+  }
+
+  // Old-school CRT shut-off: the picture collapses to a line, then a dot, then nothing.
+  function powerOff() {
+    if (!poweredOn) return;
+    poweredOn = false;
+    clearPowerTimers();
+    [lowerThirdTimer, bumperTimer, osdTimer, vhsTimer, glitchTimer].forEach(clearTimeout);
+    els.lowerThird.classList.remove("show");
+    els.bumper.classList.remove("show");
+    els.osd.classList.remove("show");
+    els.vhs.classList.remove("on");
+    els.picture.classList.remove("crt-on", "glitch");
+    els.picture.classList.add("crt-off");
+    els.led.classList.remove("on");
+    els.powerToggle.classList.remove("on");
+    if (playerReady && player.stopVideo) player.stopVideo();
+    current = null;
+    delete els.lowerThird.dataset.shownFor;
+    els.bugCode.textContent = "";
+    document.title = "The Video Box";
+    sweep(1800, 40, 0.4, 0.05);
+    renderMenu();
+    later(() => els.screen.classList.add("dot"), 450);
+    later(() => {
+      els.screen.classList.remove("dot");
+      els.powerScreen.classList.add("off");
+      els.powerScreen.hidden = false;
+    }, 1300);
   }
 
   function togglePlay() {
@@ -295,7 +364,10 @@
 
   function skip() {
     if (!poweredOn) powerOn();
-    else playNext();
+    else {
+      playNext();
+      showChannelOsd();
+    }
   }
 
   // ---------- on-screen graphics ----------
@@ -316,6 +388,71 @@
     els.lowerThird.classList.add("show");
     clearTimeout(lowerThirdTimer);
     lowerThirdTimer = setTimeout(() => els.lowerThird.classList.remove("show"), LOWER_THIRD_MS);
+  }
+
+  function pad2(n) { return String(n).padStart(2, "0"); }
+
+  // The little green on-screen display a TV flashes when you change channel.
+  function showOsd(main, sub) {
+    els.osdMain.textContent = main;
+    els.osdSub.textContent = sub || "";
+    els.osd.classList.add("show");
+    clearTimeout(osdTimer);
+    osdTimer = setTimeout(() => els.osd.classList.remove("show"), OSD_MS);
+  }
+
+  function showChannelOsd() {
+    const b = activeBlock();
+    showOsd(`CH ${pad2(b.ch)}`, b.name.toUpperCase());
+  }
+
+  function loadVhs() {
+    try {
+      const saved = localStorage.getItem(VHS_KEY);
+      if (saved === "on") return true;
+      if (saved === "off") return false;
+    } catch (e) { /* ignore */ }
+    return !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }
+
+  // A brief tracking glitch: the picture jitters and a bright band rolls up the screen.
+  function vhsGlitch(ms) {
+    if (!vhsOn || !poweredOn) return;
+    els.picture.classList.remove("glitch");
+    els.vhs.classList.remove("on");
+    void els.picture.offsetWidth; // restart the animations
+    els.picture.classList.add("glitch");
+    els.vhs.classList.add("on");
+    clearTimeout(glitchTimer);
+    glitchTimer = setTimeout(() => {
+      els.picture.classList.remove("glitch");
+      els.vhs.classList.remove("on");
+    }, ms || 1200);
+  }
+
+  function scheduleVhs() {
+    clearTimeout(vhsTimer);
+    if (!vhsOn || !poweredOn) return;
+    vhsTimer = setTimeout(() => { vhsGlitch(1200); scheduleVhs(); }, 20000 + Math.random() * 35000);
+  }
+
+  function renderVhsButton() {
+    els.vhsToggle.setAttribute("aria-pressed", String(vhsOn));
+  }
+
+  function toggleVhs() {
+    vhsOn = !vhsOn;
+    try { localStorage.setItem(VHS_KEY, vhsOn ? "on" : "off"); } catch (e) { /* ignore */ }
+    renderVhsButton();
+    if (vhsOn) {
+      scheduleVhs();
+      vhsGlitch(900);
+    } else {
+      clearTimeout(vhsTimer);
+      clearTimeout(glitchTimer);
+      els.picture.classList.remove("glitch");
+      els.vhs.classList.remove("on");
+    }
   }
 
   function showBumper() {
@@ -350,8 +487,8 @@
   function renderGuideStatus() {
     const b = activeBlock();
     let text = mode === "all"
-      ? `ON NOW: All Hits · ${blockPool().length} videos in rotation`
-      : `ON NOW: ${b.name} · ${b.sub}`;
+      ? `ON NOW: CH ${pad2(b.ch)} All Hits · ${blockPool().length} videos in rotation`
+      : `ON NOW: CH ${pad2(b.ch)} ${b.name} · ${b.sub}`;
     if (mode === "auto") text += ` · next block in ${Math.max(0, AUTO_EVERY - autoCount)}`;
     els.guideNow.textContent = text;
     els.bugBlock.textContent = mode === "all" ? "" : b.tag;
@@ -587,6 +724,22 @@
   function confirmTone() { tone([880], 0.05, 0.1); tone([1320], 0.18, 0.16); }
   function busyTone() { tone([480, 620], 0.05, 0.25); tone([480, 620], 0.45, 0.25); }
 
+  // A quick falling/rising whistle, like a CRT powering down or up.
+  function sweep(from, to, dur, gain) {
+    const ac = ctx();
+    if (!ac) return;
+    const t0 = ac.currentTime;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.frequency.setValueAtTime(from, t0);
+    o.frequency.exponentialRampToValueAtTime(to, t0 + dur);
+    g.gain.setValueAtTime(gain, t0);
+    g.gain.linearRampToValueAtTime(0, t0 + dur);
+    o.connect(g).connect(ac.destination);
+    o.start(t0);
+    o.stop(t0 + dur);
+  }
+
   function hissSound() {
     const ac = ctx();
     if (!ac) return;
@@ -613,6 +766,7 @@
           if (current) player.loadVideoById(current.video.id);
         },
         onStateChange: (e) => {
+          if (!poweredOn || !current) return;
           if (e.data === YT.PlayerState.PLAYING) {
             consecutiveErrors = 0;
             els.toggle.textContent = "❚❚";
@@ -628,6 +782,7 @@
           }
         },
         onError: () => {
+          if (!poweredOn) return;
           // 100 = removed/private, 101/150 = embedding disabled, 2/5 = bad id / HTML5 error
           if (current) broken.add(current.video.id);
           queue = queue.filter((q) => !broken.has(q.video.id));
@@ -661,6 +816,10 @@
 
   els.power.addEventListener("click", powerOn);
   els.toggle.addEventListener("click", togglePlay);
+  els.powerToggle.addEventListener("click", () => (poweredOn ? powerOff() : powerOn()));
+  els.chUp.addEventListener("click", () => stepChannel(1));
+  els.chDown.addEventListener("click", () => stepChannel(-1));
+  els.vhsToggle.addEventListener("click", toggleVhs);
   els.skip.addEventListener("click", skip);
   els.keypad.addEventListener("click", (e) => {
     const b = e.target.closest("button[data-key]");
@@ -710,11 +869,15 @@
     else if (e.key === " " && !e.target.matches("button")) { e.preventDefault(); if (!poweredOn) powerOn(); else togglePlay(); }
     else if (e.key === "s" || e.key === "S") { e.preventDefault(); skip(); }
     else if (e.key === "/") { e.preventDefault(); els.search.focus(); }
+    else if (e.key === "]") { e.preventDefault(); stepChannel(1); }
+    else if (e.key === "[") { e.preventDefault(); stepChannel(-1); }
+    else if (e.key === "p" || e.key === "P") { e.preventDefault(); if (poweredOn) powerOff(); else powerOn(); }
   });
 
   topUpQueue();
   renderQueue();
   renderGuide();
+  renderVhsButton();
   renderMenuTabs();
   renderMenu();
   renderTicker();

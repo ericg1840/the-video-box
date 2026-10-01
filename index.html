@@ -24,6 +24,7 @@
     <div class="tv-col">
     <section class="tv" aria-label="Television">
       <div class="tv-screen">
+        <div id="picture" class="tv-picture">
         <div id="player"></div>
 
         <!-- lower-third shown when each video starts -->
@@ -52,8 +53,19 @@
           </div>
         </div>
 
+        <!-- VHS tracking band that rolls up the picture now and then -->
+        <div id="vhs" class="vhs" aria-hidden="true"><div class="vhs-band"></div></div>
+
         <div id="static" class="static" aria-hidden="true"></div>
+        </div>
+
         <div class="scanlines" aria-hidden="true"></div>
+
+        <!-- on-screen display, like a TV remote: CH 08 -->
+        <div id="osd" class="osd" aria-live="polite">
+          <div id="osd-main" class="osd-main"></div>
+          <div id="osd-sub" class="osd-sub"></div>
+        </div>
 
         <div id="power-screen" class="power-screen">
           <div class="ps-inner">
@@ -67,6 +79,10 @@
       <div class="tv-chin">
         <div class="tv-brand">VIDEOVISION</div>
         <div class="tv-knobs">
+          <button id="power-toggle" class="knob-btn knob-power" title="Power (P)" aria-label="Power">⏻</button>
+          <button id="ch-down" class="knob-btn" title="Channel down ( [ )" aria-label="Channel down">CH▼</button>
+          <button id="ch-up" class="knob-btn" title="Channel up ( ] )" aria-label="Channel up">CH▲</button>
+          <button id="vhs-toggle" class="knob-btn" title="VHS tracking glitches on/off" aria-pressed="true">VHS</button>
           <button id="toggle" class="knob-btn" title="Pause / play (Space)">❚❚</button>
           <button id="skip" class="knob-btn" title="Change channel: skip this video (S)">▶▶|</button>
           <span class="led" id="led" aria-hidden="true"></span>
@@ -147,7 +163,7 @@
   </div>
 
   <footer>
-    Keys: <kbd>0</kbd>–<kbd>9</kbd> dial · <kbd>Space</kbd> pause · <kbd>S</kbd> skip · <kbd>Esc</kbd> clear · <kbd>/</kbd> search
+    Keys: <kbd>0</kbd>–<kbd>9</kbd> dial · <kbd>Space</kbd> pause · <kbd>S</kbd> skip · <kbd>Esc</kbd> clear · <kbd>/</kbd> search · <kbd>[</kbd> <kbd>]</kbd> channel · <kbd>P</kbd> power
   </footer>
 
   <script src="videos.js"></script>

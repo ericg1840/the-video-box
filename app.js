@@ -17,6 +17,26 @@
     "Peoria, IL", "Macon, GA", "Flint, MI", "Erie, PA", "Shreveport, LA", "Provo, UT",
   ];
 
+  // Programming blocks: "channels" that limit which videos the phantom callers request.
+  // Your own orders always play, whatever the block.
+  const AUTO_EVERY = 6;             // videos per block in Auto-Rotate
+  const BUMPER_MS = 3400;           // how long the "NOW ENTERING" card stays up
+  const MODE_KEY = "videobox.block";
+  const THURSDAY = new Date().getDay() === 4;
+  const BLOCKS = [
+    { id: "all", name: "All Hits", tag: "", sub: "Everything, everywhere", genres: null, color: "#ff2bd6" },
+    { id: "70s", name: "Totally 70s", tag: "70s", sub: "Disco, glam & AM gold", genres: ["70s"], color: "#ff7a1a" },
+    { id: "80s", name: "Totally 80s", tag: "80s", sub: "Big hair, bigger hooks", genres: ["80s"], color: "#ff2bd6" },
+    { id: "90s", name: "Totally 90s", tag: "90s", sub: "Pop, R&B & rock", genres: ["90s", "90s-rock"], color: "#19e3d0" },
+    { id: "grunge", name: "Grunge & Alt Hour", tag: "ALT", sub: "Flannel required", genres: ["90s-rock"], color: "#7b3cff" },
+    { id: "2000s", name: "2000s Flashback", tag: "00s", sub: "Y2K pop & nu-metal", genres: ["2000s"], color: "#ffe23d" },
+    { id: "country", name: "Country Roads", tag: "CNTRY", sub: "Boots, trucks & heartbreak", genres: ["country"], color: "#ff7a1a" },
+    { id: "throwback", name: THURSDAY ? "Throwback Thursday" : "Throwback Mix", tag: "MIX", sub: "70s · 80s · 90s", genres: ["70s", "80s", "90s", "90s-rock"], color: "#7b3cff" },
+    { id: "auto", name: "Auto-Rotate", tag: "AUTO", sub: `A new block every ${AUTO_EVERY} videos`, genres: null, color: "#ffe23d" },
+  ];
+  const BLOCK_BY_ID = Object.fromEntries(BLOCKS.map((b) => [b.id, b]));
+  const AUTO_ROTATION = ["70s", "80s", "90s", "grunge", "2000s", "country"];
+
   const GENRE_LABELS = {
     pop: "Pop",
     rock: "Rock",
@@ -48,6 +68,14 @@
     ltTitle: $("lt-title"),
     ltFrom: $("lt-from"),
     bugCode: $("bug-code"),
+    bugBlock: $("bug-block"),
+    bumper: $("bumper"),
+    bumperName: $("bumper-name"),
+    bumperSub: $("bumper-sub"),
+    guideChips: $("guide-chips"),
+    guideNow: $("guide-now"),
+    search: $("search"),
+    searchCount: $("search-count"),
     lcd: document.querySelector(".lcd"),
     lcdDigits: $("lcd-digits"),
     lcdMsg: $("lcd-msg"),
@@ -69,6 +97,11 @@
   let bag = [];              // shuffle bag for phantom requests
   let dialed = "";
   let menuGenre = "all";
+  let query = "";
+  let mode = loadMode();     // selected block id (a BLOCKS id)
+  let autoIndex = 0;         // position in AUTO_ROTATION while mode === "auto"
+  let autoCount = 0;         // videos played in the current auto block
+  let bumperTimer = 0;
   let consecutiveErrors = 0;
   let lowerThirdTimer = 0;
   let lcdResetTimer = 0;
@@ -135,12 +168,60 @@
 
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
+  function loadMode() {
+    try {
+      const saved = localStorage.getItem(MODE_KEY);
+      return BLOCK_BY_ID[saved] ? saved : "all";
+    } catch (e) {
+      return "all";
+    }
+  }
+
+  function activeBlock() {
+    return BLOCK_BY_ID[mode === "auto" ? AUTO_ROTATION[autoIndex] : mode];
+  }
+
+  // Videos the phantom callers may request right now.
+  function blockPool() {
+    const b = activeBlock();
+    return catalog().filter((v) => !broken.has(v.id) && (!b.genres || b.genres.includes(v.genre)));
+  }
+
+  function resetUpcoming() {
+    queue = queue.filter((q) => q.mine);
+    bag = [];
+    topUpQueue();
+    renderQueue();
+  }
+
+  function setMode(id) {
+    if (!BLOCK_BY_ID[id] || id === mode) return;
+    mode = id;
+    autoIndex = 0;
+    autoCount = 0;
+    try { localStorage.setItem(MODE_KEY, mode); } catch (e) { /* ignore */ }
+    resetUpcoming();
+    renderGuide();
+    if (poweredOn) {
+      playNext();
+      showBumper();
+    }
+  }
+
+  function advanceAuto() {
+    autoIndex = (autoIndex + 1) % AUTO_ROTATION.length;
+    autoCount = 0;
+    resetUpcoming();
+    renderGuide();
+    showBumper();
+  }
+
   function drawRandom() {
     const busy = new Set(queue.map((q) => q.video.id));
     if (current) busy.add(current.video.id);
     for (let attempt = 0; attempt < 2; attempt++) {
       if (!bag.length) {
-        bag = catalog().filter((v) => !broken.has(v.id));
+        bag = blockPool();
         for (let i = bag.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [bag[i], bag[j]] = [bag[j], bag[i]];
@@ -179,6 +260,7 @@
   // ---------- playback ----------
 
   function playNext() {
+    if (mode === "auto" && autoCount >= AUTO_EVERY) advanceAuto();
     topUpQueue();
     const item = queue.shift();
     topUpQueue();
@@ -187,6 +269,8 @@
       return;
     }
     current = item;
+    autoCount++;
+    renderGuideStatus();
     burstStatic();
     if (playerReady) player.loadVideoById(item.video.id);
     renderNowPlaying();
@@ -200,6 +284,7 @@
     els.powerScreen.hidden = true;
     els.led.classList.add("on");
     playNext();
+    showBumper();
   }
 
   function togglePlay() {
@@ -233,6 +318,45 @@
     lowerThirdTimer = setTimeout(() => els.lowerThird.classList.remove("show"), LOWER_THIRD_MS);
   }
 
+  function showBumper() {
+    const b = activeBlock();
+    if (b.id === "all") return;
+    els.bumper.style.setProperty("--c", b.color);
+    els.bumperName.textContent = b.name;
+    els.bumperSub.textContent = b.sub;
+    els.bumper.classList.remove("show");
+    void els.bumper.offsetWidth; // restart the animation
+    els.bumper.classList.add("show");
+    clearTimeout(bumperTimer);
+    bumperTimer = setTimeout(() => els.bumper.classList.remove("show"), BUMPER_MS);
+  }
+
+  function renderGuide() {
+    els.guideChips.innerHTML = "";
+    BLOCKS.forEach((b) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "block-chip";
+      btn.style.setProperty("--c", b.color);
+      btn.setAttribute("aria-pressed", String(b.id === mode));
+      btn.title = b.sub;
+      btn.textContent = b.name;
+      btn.addEventListener("click", () => setMode(b.id));
+      els.guideChips.appendChild(btn);
+    });
+    renderGuideStatus();
+  }
+
+  function renderGuideStatus() {
+    const b = activeBlock();
+    let text = mode === "all"
+      ? `ON NOW: All Hits · ${blockPool().length} videos in rotation`
+      : `ON NOW: ${b.name} · ${b.sub}`;
+    if (mode === "auto") text += ` · next block in ${Math.max(0, AUTO_EVERY - autoCount)}`;
+    els.guideNow.textContent = text;
+    els.bugBlock.textContent = mode === "all" ? "" : b.tag;
+  }
+
   function renderNowPlaying() {
     if (!current) return;
     const v = current.video;
@@ -261,6 +385,30 @@
     });
   }
 
+  // Lowercase, strip accents and punctuation: "Sinéad O'Connor" -> "sinead o connor".
+  function norm(s) {
+    return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, " ").trim();
+  }
+
+  const hayCache = new Map();
+  function haystack(v) {
+    let h = hayCache.get(v.id);
+    if (h === undefined) {
+      h = norm(`${v.code} ${v.artist} ${v.title} ${GENRE_LABELS[v.genre] || v.genre}`);
+      h += " " + h.replace(/ /g, ""); // so "acdc" finds "AC/DC"
+      hayCache.set(v.id, h);
+    }
+    return h;
+  }
+
+  function searchResults() {
+    const tokens = norm(query).split(" ").filter(Boolean);
+    return catalog()
+      .filter((v) => tokens.length ? tokens.every((t) => haystack(v).includes(t)) : (menuGenre === "all" || v.genre === menuGenre))
+      .sort((a, b) => a.code.localeCompare(b.code));
+  }
+
   function renderMenuTabs() {
     const genres = [...new Set(catalog().map((v) => v.genre))];
     const order = Object.keys(GENRE_LABELS);
@@ -271,19 +419,28 @@
       const b = document.createElement("button");
       b.type = "button";
       b.setAttribute("role", "tab");
-      b.setAttribute("aria-selected", String(g === menuGenre));
+      b.setAttribute("aria-selected", String(!norm(query) && g === menuGenre));
       b.textContent = g === "all" ? "All" : GENRE_LABELS[g] || g;
-      b.addEventListener("click", () => { menuGenre = g; renderMenuTabs(); renderMenu(); });
+      b.addEventListener("click", () => { menuGenre = g; query = ""; els.search.value = ""; renderMenuTabs(); renderMenu(); });
       els.menuTabs.appendChild(b);
     });
   }
 
   function renderMenu() {
     els.menuList.innerHTML = "";
-    catalog()
-      .filter((v) => menuGenre === "all" || v.genre === menuGenre)
-      .sort((a, b) => a.code.localeCompare(b.code))
-      .forEach((v) => {
+    const results = searchResults();
+    const searching = norm(query) !== "";
+    els.searchCount.textContent = !searching ? "" :
+      results.length === 0 ? "No matches" :
+      results.length === 1 ? "1 match · press Enter to order" : `${results.length} matches`;
+    if (!results.length) {
+      const li = document.createElement("li");
+      li.className = "menu-empty";
+      li.textContent = searching ? "No matches. Try an artist, a song title or part of one." : "Nothing here yet.";
+      els.menuList.appendChild(li);
+      return;
+    }
+    results.forEach((v) => {
         const li = document.createElement("li");
         if (current && current.video.id === v.id) li.className = "playing";
         const b = document.createElement("button");
@@ -356,7 +513,7 @@
       return;
     }
     if (key === "#") {
-      const pool = catalog().filter((v) => !broken.has(v.id));
+      const pool = blockPool();
       if (pool.length) submitCode(pick(pool).code);
       return;
     }
@@ -527,16 +684,37 @@
     renderTicker();
   });
 
+  els.search.addEventListener("input", () => {
+    query = els.search.value;
+    renderMenuTabs();
+    renderMenu();
+  });
+  els.search.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      els.search.value = "";
+      query = "";
+      renderMenuTabs();
+      renderMenu();
+      els.search.blur();
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const results = searchResults();
+      if (results.length === 1) dialCode(results[0].code);
+    }
+  });
+
   document.addEventListener("keydown", (e) => {
     if (e.target.matches("input, textarea, select") || e.metaKey || e.ctrlKey || e.altKey) return;
     if (/^[0-9]$/.test(e.key) || e.key === "#" || e.key === "*") { e.preventDefault(); pressKey(e.key); }
     else if (e.key === "Escape" || e.key === "Backspace") { e.preventDefault(); pressKey("*"); }
     else if (e.key === " " && !e.target.matches("button")) { e.preventDefault(); if (!poweredOn) powerOn(); else togglePlay(); }
     else if (e.key === "s" || e.key === "S") { e.preventDefault(); skip(); }
+    else if (e.key === "/") { e.preventDefault(); els.search.focus(); }
   });
 
   topUpQueue();
   renderQueue();
+  renderGuide();
   renderMenuTabs();
   renderMenu();
   renderTicker();

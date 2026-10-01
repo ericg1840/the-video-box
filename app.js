@@ -17,7 +17,7 @@
 
   const GENRE_LABELS = {
     pop: "Pop", rock: "Rock", "80s": "80s", "hip-hop": "Hip-Hop", latin: "Latin",
-    funk: "Funk", indie: "Indie", electronic: "Electronic", custom: "Viewer Picks",
+    funk: "Funk", indie: "Indie", electronic: "Electronic", country: "Country", custom: "Viewer Picks",
   };
 
   const $ = (id) => document.getElementById(id);
@@ -66,7 +66,7 @@
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list.filter((v) => v && typeof v.id === "string" && /^9\d\d$/.test(v.code)) : [];
+      return Array.isArray(list) ? list.filter((v) => v && typeof v.id === "string" && /^\d{3}$/.test(v.code)) : [];
     } catch (e) {
       return [];
     }
@@ -78,6 +78,12 @@
 
   let custom = loadCustom();
 
+  // Viewer-added videos live in 950-999; re-code any saved before that range was set.
+  custom.forEach((v) => { if (Number(v.code) < 950) v.code = null; });
+  custom.forEach((v) => { if (!v.code) v.code = nextCustomCode(); });
+  custom = custom.filter((v) => v.code);
+  saveCustom();
+
   function catalog() {
     return window.VIDEO_POOL.concat(custom.map((v) => ({ ...v, genre: "custom" })));
   }
@@ -87,7 +93,7 @@
   }
 
   function nextCustomCode() {
-    for (let n = 900; n <= 999; n++) {
+    for (let n = 950; n <= 999; n++) {
       const code = String(n);
       if (!custom.some((v) => v.code === code)) return code;
     }
@@ -497,7 +503,7 @@
     const existing = catalog().find((v) => v.id === id);
     if (existing) { els.addStatus.textContent = `Already on the menu: dial ${existing.code}.`; return; }
     const code = nextCustomCode();
-    if (!code) { els.addStatus.textContent = "The 900s are full! Remove one first."; return; }
+    if (!code) { els.addStatus.textContent = "The 950s are full!"; return; }
     custom.push({ code, id });
     saveCustom();
     els.addInput.value = "";

@@ -15,7 +15,7 @@ channels of the era: dial a 3-digit code and your video goes in line.
 - Static bursts between videos, DTMF keypad tones, busy signals for bad codes, scanlines,
   and a scrolling ticker of codes along the bottom.
 - The **Video menu** lists every code by genre. Click an entry to dial it.
-- **Program your own**: paste a YouTube link or ID and it gets a code in the 900s
+- **Program your own**: paste a YouTube link or ID and it gets a code in the 950s
   (saved in your browser).
 - Videos that can't be embedded are skipped automatically.
 
@@ -29,7 +29,8 @@ channels of the era: dial a 3-digit code and your video goes in line.
 | 6xx   | Funk        |
 | 7xx   | Indie       |
 | 8xx   | Electronic  |
-| 9xx   | Your own    |
+| 901–949 | Country   |
+| 950–999 | Your own  |
 
 Keys: `0`–`9` dial · `#` random code · `*`/`Esc` clear · `Space` pause · `S` skip.
 

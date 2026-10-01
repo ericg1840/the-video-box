@@ -4,58 +4,127 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>The Video Box</title>
-  <meta name="description" content="Shuffle through random YouTube music videos.">
+  <meta name="description" content="Interactive music video channel: dial a 3-digit code to request a video.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Shade&family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>📼 The Video Box</h1>
-    <p class="tagline">Random music videos, one after another.</p>
+  <header class="masthead">
+    <div class="logo" aria-label="The Video Box">
+      <span class="logo-cube" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="logo-text"><small>THE</small>VIDEO<b>BOX</b></span>
+    </div>
+    <p class="slogan">Music television <em>you</em> control</p>
   </header>
 
-  <main>
-    <section class="stage">
-      <div class="player-frame">
+  <main class="studio">
+    <!-- ===== The TV ===== -->
+    <section class="tv" aria-label="Television">
+      <div class="tv-screen">
         <div id="player"></div>
-        <div id="splash" class="splash">
-          <button id="start" class="big-btn">▶ Start the shuffle</button>
+
+        <!-- lower-third shown when each video starts -->
+        <div id="lower-third" class="lower-third" aria-live="polite">
+          <div class="lt-code">#<span id="lt-code">000</span></div>
+          <div class="lt-body">
+            <div id="lt-artist" class="lt-artist"></div>
+            <div id="lt-title" class="lt-title"></div>
+            <div id="lt-from" class="lt-from"></div>
+          </div>
+        </div>
+
+        <!-- corner bug -->
+        <div class="bug" aria-hidden="true">
+          <span class="bug-cube"></span>
+          <span id="bug-code" class="bug-code"></span>
+        </div>
+
+        <div id="static" class="static" aria-hidden="true"></div>
+        <div class="scanlines" aria-hidden="true"></div>
+
+        <div id="power-screen" class="power-screen">
+          <div class="ps-inner">
+            <div class="ps-title">PLEASE STAND BY</div>
+            <button id="power" class="power-btn">⏻ TURN ON THE TV</button>
+            <p class="ps-hint">Then dial a 3-digit code to order a video.</p>
+          </div>
         </div>
       </div>
 
-      <div class="now-playing">
-        <div>
-          <div id="np-title" class="np-title">Nothing playing yet</div>
-          <div id="np-artist" class="np-artist"></div>
+      <div class="tv-chin">
+        <div class="tv-brand">VIDEOVISION</div>
+        <div class="tv-knobs">
+          <button id="toggle" class="knob-btn" title="Pause / play (Space)">❚❚</button>
+          <button id="skip" class="knob-btn" title="Change channel: skip this video (S)">▶▶|</button>
+          <span class="led" id="led" aria-hidden="true"></span>
         </div>
-        <span id="np-genre" class="chip" hidden></span>
       </div>
-
-      <div class="controls">
-        <button id="prev" title="Previous (P)">⏮ Prev</button>
-        <button id="toggle" title="Play / pause (Space)">⏯ Pause</button>
-        <button id="next" class="primary" title="Shuffle to next (N)">🔀 Next</button>
-        <label class="genre">
-          Genre
-          <select id="genre-filter"><option value="all">All</option></select>
-        </label>
-      </div>
-      <p id="status" class="status" role="status"></p>
     </section>
 
-    <aside>
-      <h2>Recently played</h2>
-      <ol id="history" class="history"></ol>
+    <!-- ===== The phone ===== -->
+    <section class="phone" aria-label="Request line">
+      <div class="phone-head">
+        <div class="call-in">TO ORDER, DIAL</div>
+        <div class="call-number">1-900-555-BOXX</div>
+        <div class="call-fine">just kidding, it's free · tap the keypad or type digits</div>
+      </div>
 
-      <h2>Add your own</h2>
-      <form id="add-form" class="add-form">
-        <input id="add-input" type="text" placeholder="YouTube URL or video ID" autocomplete="off">
-        <button type="submit">Add</button>
-      </form>
-      <ul id="custom-list" class="custom-list"></ul>
-    </aside>
+      <div class="lcd" aria-live="polite">
+        <div id="lcd-digits" class="lcd-digits">- - -</div>
+        <div id="lcd-msg" class="lcd-msg">ENTER VIDEO CODE</div>
+      </div>
+
+      <div class="keypad" id="keypad">
+        <button data-key="1">1<small>&nbsp;</small></button>
+        <button data-key="2">2<small>ABC</small></button>
+        <button data-key="3">3<small>DEF</small></button>
+        <button data-key="4">4<small>GHI</small></button>
+        <button data-key="5">5<small>JKL</small></button>
+        <button data-key="6">6<small>MNO</small></button>
+        <button data-key="7">7<small>PQRS</small></button>
+        <button data-key="8">8<small>TUV</small></button>
+        <button data-key="9">9<small>WXYZ</small></button>
+        <button data-key="*" title="Clear">✱<small>CLEAR</small></button>
+        <button data-key="0">0<small>OPER</small></button>
+        <button data-key="#" title="Random code">#<small>RANDOM</small></button>
+      </div>
+
+      <div class="coming-up">
+        <h2>Coming up</h2>
+        <ol id="queue" class="queue"></ol>
+      </div>
+    </section>
   </main>
 
-  <footer>Keyboard: <kbd>N</kbd> next · <kbd>P</kbd> previous · <kbd>Space</kbd> play/pause</footer>
+  <!-- ===== Video menu ===== -->
+  <section class="menu" aria-label="Video menu">
+    <div class="menu-head">
+      <h2>Video menu</h2>
+      <div class="menu-tabs" id="menu-tabs" role="tablist"></div>
+    </div>
+    <ul id="menu-list" class="menu-list"></ul>
+
+    <form id="add-form" class="add-form">
+      <label for="add-input">Program your own video into the 900s:</label>
+      <div class="add-row">
+        <input id="add-input" type="text" placeholder="YouTube URL or video ID" autocomplete="off">
+        <button type="submit">Add</button>
+      </div>
+      <p id="add-status" class="add-status" role="status"></p>
+    </form>
+  </section>
+
+  <!-- ===== Ticker ===== -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-label">DIAL NOW</div>
+    <div class="ticker-track"><div id="ticker-text" class="ticker-text"></div></div>
+  </div>
+
+  <footer>
+    Keys: <kbd>0</kbd>–<kbd>9</kbd> dial · <kbd>Space</kbd> pause · <kbd>S</kbd> skip · <kbd>Esc</kbd> clear
+  </footer>
 
   <script src="videos.js"></script>
   <script src="app.js"></script>

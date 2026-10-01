@@ -21,6 +21,7 @@
 
   <main class="studio">
     <!-- ===== The TV ===== -->
+    <div class="tv-col">
     <section class="tv" aria-label="Television">
       <div class="tv-screen">
         <div id="player"></div>
@@ -39,6 +40,16 @@
         <div class="bug" aria-hidden="true">
           <span class="bug-cube"></span>
           <span id="bug-code" class="bug-code"></span>
+          <span id="bug-block" class="bug-block"></span>
+        </div>
+
+        <!-- shown when a programming block starts -->
+        <div id="bumper" class="bumper" aria-live="polite">
+          <div class="bumper-card">
+            <div class="bumper-kicker">NOW ENTERING</div>
+            <div id="bumper-name" class="bumper-name"></div>
+            <div id="bumper-sub" class="bumper-sub"></div>
+          </div>
         </div>
 
         <div id="static" class="static" aria-hidden="true"></div>
@@ -62,6 +73,14 @@
         </div>
       </div>
     </section>
+
+    <!-- ===== Channel guide: programming blocks ===== -->
+    <section class="guide" aria-label="Channel guide">
+      <h2>Channel guide</h2>
+      <div id="guide-chips" class="block-chips"></div>
+      <p id="guide-now" class="guide-now" role="status"></p>
+    </section>
+    </div>
 
     <!-- ===== The phone ===== -->
     <section class="phone" aria-label="Request line">
@@ -104,6 +123,11 @@
       <h2>Video menu</h2>
       <div class="menu-tabs" id="menu-tabs" role="tablist"></div>
     </div>
+    <div class="search">
+      <label class="sr-only" for="search">Search the menu</label>
+      <input id="search" type="search" placeholder="Search artist, song, genre or code…" autocomplete="off" spellcheck="false">
+      <span id="search-count" class="search-count" role="status"></span>
+    </div>
     <ul id="menu-list" class="menu-list"></ul>
 
     <form id="add-form" class="add-form">
@@ -123,7 +147,7 @@
   </div>
 
   <footer>
-    Keys: <kbd>0</kbd>–<kbd>9</kbd> dial · <kbd>Space</kbd> pause · <kbd>S</kbd> skip · <kbd>Esc</kbd> clear
+    Keys: <kbd>0</kbd>–<kbd>9</kbd> dial · <kbd>Space</kbd> pause · <kbd>S</kbd> skip · <kbd>Esc</kbd> clear · <kbd>/</kbd> search
   </footer>
 
   <script src="videos.js"></script>

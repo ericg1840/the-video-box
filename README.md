@@ -15,6 +15,14 @@ channels of the era: dial a 4-digit code and your video goes in line.
 - Static bursts between videos, DTMF keypad tones, busy signals for bad codes, scanlines,
   and a scrolling ticker of codes along the bottom.
 - The **Video menu** lists every code by genre. Click an entry to dial it.
+- **Search** the menu by artist, song, genre or code (accents and punctuation don't matter, so
+  `sinead` finds Sinéad and `acdc` finds AC/DC). Press `/` to jump to the search box, `Enter` to
+  order when there's exactly one match, `Esc` to clear.
+- **Channel guide.** Pick a programming block (Totally 70s/80s/90s, Grunge & Alt Hour, 2000s
+  Flashback, Country Roads, Throwback Mix — "Throwback Thursday" on Thursdays) and the phantom
+  callers only request videos from that block, with a "NOW ENTERING" card and a tag in the corner
+  of the screen. **Auto-Rotate** switches to the next block every 6 videos. Your own orders always
+  play, whatever the block, and your choice is remembered between visits.
 - **Program your own**: paste a YouTube link or ID and it gets a code in the 9900s
   (saved in your browser).
 - Videos that can't be embedded are skipped automatically.
@@ -36,7 +44,7 @@ channels of the era: dial a 4-digit code and your video goes in line.
 | 2900–2999 | Country (32) |
 | 9900–9999 | Your own |
 
-Keys: `0`–`9` dial · `#` random code · `*`/`Esc` clear · `Space` pause · `S` skip.
+Keys: `0`–`9` dial · `#` random code (within the current block) · `*`/`Esc` clear · `Space` pause · `S` skip · `/` search.
 
 ## Running it
 

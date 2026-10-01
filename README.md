@@ -15,6 +15,12 @@ channels of the era: dial a 4-digit code and your video goes in line.
 - Static bursts between videos, DTMF keypad tones, busy signals for bad codes, scanlines,
   and a scrolling ticker of codes along the bottom.
 - The **Video menu** lists every code by genre. Click an entry to dial it.
+- **Retro TV touches.** The TV has a power button (⏻) that shuts it off like an old CRT: the
+  picture collapses to a line, then a dot. CH▲ / CH▼ (or `]` / `[`) step through the programming
+  blocks as channels, with a green on-screen "CH 08" display, static and a "NOW ENTERING" card.
+  Every block has a channel number (All Hits is CH 03, Totally 80s is CH 08, Grunge is CH 11, ...).
+  Now and then a VHS tracking glitch rolls up the picture; the VHS button turns it off (it starts
+  off for people who prefer reduced motion).
 - **Search** the menu by artist, song, genre or code (accents and punctuation don't matter, so
   `sinead` finds Sinéad and `acdc` finds AC/DC). Press `/` to jump to the search box, `Enter` to
   order when there's exactly one match, `Esc` to clear.
@@ -44,7 +50,7 @@ channels of the era: dial a 4-digit code and your video goes in line.
 | 2900–2999 | Country (32) |
 | 9900–9999 | Your own |
 
-Keys: `0`–`9` dial · `#` random code (within the current block) · `*`/`Esc` clear · `Space` pause · `S` skip · `/` search.
+Keys: `0`–`9` dial · `#` random code (within the current block) · `*`/`Esc` clear · `Space` pause · `S` skip · `/` search · `[` `]` channel · `P` power.
 
 ## Running it
 

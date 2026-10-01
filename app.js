@@ -2,6 +2,8 @@
   "use strict";
 
   const STORAGE_KEY = "videobox.custom";
+  const CODE_LEN = 4;               // digits in a request code
+  const CUSTOM_FIRST = 9900;        // viewer-added videos use 9900-9999
   const QUEUE_TARGET = 3;           // keep this many videos in "Coming up"
   const LOWER_THIRD_MS = 9000;      // how long the code/title graphic stays up
   const STATIC_MS = 650;            // static burst between videos
@@ -16,8 +18,20 @@
   ];
 
   const GENRE_LABELS = {
-    pop: "Pop", rock: "Rock", "80s": "80s", "hip-hop": "Hip-Hop", latin: "Latin",
-    funk: "Funk", indie: "Indie", electronic: "Electronic", country: "Country", custom: "Viewer Picks",
+    pop: "Pop",
+    rock: "Rock",
+    "70s": "70s",
+    "80s": "80s",
+    "90s": "90s",
+    "90s-rock": "90s Rock",
+    "2000s": "2000s",
+    "hip-hop": "Hip-Hop",
+    latin: "Latin",
+    funk: "Funk",
+    indie: "Indie",
+    electronic: "Electronic",
+    country: "Country",
+    custom: "Viewer Picks",
   };
 
   const $ = (id) => document.getElementById(id);
@@ -66,7 +80,7 @@
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const list = raw ? JSON.parse(raw) : [];
-      return Array.isArray(list) ? list.filter((v) => v && typeof v.id === "string" && /^\d{3}$/.test(v.code)) : [];
+      return Array.isArray(list) ? list.filter((v) => v && typeof v.id === "string") : [];
     } catch (e) {
       return [];
     }
@@ -78,8 +92,8 @@
 
   let custom = loadCustom();
 
-  // Viewer-added videos live in 950-999; re-code any saved before that range was set.
-  custom.forEach((v) => { if (Number(v.code) < 950) v.code = null; });
+  // Viewer-added videos live in 9900-9999; re-code any saved under an older code scheme.
+  custom.forEach((v) => { if (String(v.code).length !== CODE_LEN || Number(v.code) < CUSTOM_FIRST) v.code = null; });
   custom.forEach((v) => { if (!v.code) v.code = nextCustomCode(); });
   custom = custom.filter((v) => v.code);
   saveCustom();
@@ -93,7 +107,7 @@
   }
 
   function nextCustomCode() {
-    for (let n = 950; n <= 999; n++) {
+    for (let n = CUSTOM_FIRST; n <= CUSTOM_FIRST + 99; n++) {
       const code = String(n);
       if (!custom.some((v) => v.code === code)) return code;
     }
@@ -319,7 +333,7 @@
   }
 
   function formatDialed() {
-    return (dialed + "---").slice(0, 3).split("").join(" ");
+    return (dialed + "-".repeat(CODE_LEN)).slice(0, CODE_LEN).split("").join(" ");
   }
 
   function resetLcdSoon() {
@@ -346,10 +360,10 @@
       if (pool.length) submitCode(pick(pool).code);
       return;
     }
-    if (dialed.length >= 3) dialed = "";
+    if (dialed.length >= CODE_LEN) dialed = "";
     dialed += key;
-    setLcd(null, dialed.length < 3 ? "KEEP DIALING…" : "CONNECTING…");
-    if (dialed.length === 3) setTimeout(() => submitCode(dialed), 250);
+    setLcd(null, dialed.length < CODE_LEN ? "KEEP DIALING…" : "CONNECTING…");
+    if (dialed.length === CODE_LEN) setTimeout(() => submitCode(dialed), 250);
   }
 
   function dialCode(code) {
@@ -463,7 +477,7 @@
           consecutiveErrors++;
           if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
             consecutiveErrors = 0;
-            setLcd("- - -", "SIGNAL LOST · PRESS SKIP");
+            setLcd("- - - -", "SIGNAL LOST · PRESS SKIP");
             return;
           }
           playNext();
@@ -503,7 +517,7 @@
     const existing = catalog().find((v) => v.id === id);
     if (existing) { els.addStatus.textContent = `Already on the menu: dial ${existing.code}.`; return; }
     const code = nextCustomCode();
-    if (!code) { els.addStatus.textContent = "The 950s are full!"; return; }
+    if (!code) { els.addStatus.textContent = "All 100 viewer slots are full!"; return; }
     custom.push({ code, id });
     saveCustom();
     els.addInput.value = "";

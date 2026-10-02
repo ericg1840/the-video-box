@@ -1139,3 +1139,79 @@ html[data-tv="2000s"] .lt-from { color: #cfe3ff; }
   .ps-inner { padding: 14px 16px; }
   .ps-hint { display: none; }
 }
+
+/* ===== 90s Videovision (default): Memphis backdrop, glassy tube, control panel ===== */
+
+/* confetti shapes: triangles, zigzags, plus signs and dots, over the existing dots */
+html[data-tv="90s"] body {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400' fill='none' stroke-width='5' stroke-linecap='round' stroke-linejoin='round' opacity='.6'%3E%3Cpath d='M40 70 l22 -38 l22 38 z' stroke='%23ff2bd6'/%3E%3Cpath d='M300 60 l12 -12 l12 12 l12 -12 l12 12 l12 -12' stroke='%2319e3d0'/%3E%3Cpath d='M330 300 l30 0 l-15 -26 z' stroke='%23ffe23d'/%3E%3Cpath d='M90 280 l12 -12 l12 12 l12 -12 l12 12' stroke='%237b3cff'/%3E%3Ccircle cx='210' cy='160' r='9' stroke='%2319e3d0'/%3E%3Cpath d='M170 360 v22 m-11 -11 h22' stroke='%23ff2bd6'/%3E%3Ccircle cx='350' cy='190' r='7' fill='%23ffe23d' stroke='none'/%3E%3Cpath d='M20 190 q10 -16 20 0 t20 0 t20 0' stroke='%23ffe23d'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 12% 18%, var(--magenta) 0 4px, transparent 5px),
+    radial-gradient(circle at 78% 9%, var(--teal) 0 5px, transparent 6px),
+    radial-gradient(circle at 88% 62%, var(--yellow) 0 4px, transparent 5px),
+    radial-gradient(circle at 6% 74%, var(--purple) 0 6px, transparent 7px),
+    radial-gradient(circle at 46% 88%, var(--teal) 0 3px, transparent 4px),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 14px);
+  background-size: 400px 400px, 420px 420px, 380px 380px, 460px 460px, 520px 520px, 300px 300px, auto;
+}
+
+html[data-tv="90s"] .tv {
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -6px 0 rgba(0, 0, 0, 0.4),
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 70px rgba(25, 227, 208, 0.16),
+    8px 8px 0 var(--purple);
+}
+html[data-tv="90s"] .tv-screen {
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9), 0 0 0 6px #0c0a16, 0 0 0 9px #4a4466, 0 0 0 11px #0c0a16;
+}
+/* soft highlight on the curved glass */
+html[data-tv="90s"] .tv-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 20% 12%, rgba(255, 255, 255, 0.17), transparent 38%),
+    radial-gradient(ellipse at 85% 95%, rgba(255, 255, 255, 0.05), transparent 30%);
+}
+
+/* control panel under the picture */
+html[data-tv="90s"] .tv-chin {
+  justify-content: flex-start;
+  gap: 14px;
+  margin-top: 18px;
+  padding: 8px 12px;
+  background: linear-gradient(#2d2840, #1a1730);
+  border-top: 2px solid var(--teal);
+  border-radius: 12px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+html[data-tv="90s"] .tv-chin::before {
+  content: "";
+  width: 74px;
+  height: 30px;
+  border-radius: 6px;
+  background: repeating-linear-gradient(90deg, #0c0a16 0 3px, transparent 3px 8px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+html[data-tv="90s"] .tv-brand::after { content: "  ·  CABLE READY"; font-size: 0.55rem; letter-spacing: 0.1em; color: var(--teal); }
+html[data-tv="90s"] .tv-knobs { margin-left: auto; }
+
+/* chunky rubber buttons with a coloured top edge */
+#power-toggle { --accent: #ff5a5a; }
+#ch-up, #ch-down { --accent: #19e3d0; }
+#vhs-toggle { --accent: #ffe23d; }
+html[data-tv="90s"] .knob-btn {
+  border-radius: 10px;
+  box-shadow: inset 0 3px 0 var(--accent, #7b3cff), 0 3px 0 #0c0a16;
+}
+html[data-tv="90s"] .knob-btn:active { transform: translateY(2px); box-shadow: inset 0 3px 0 var(--accent, #7b3cff), 0 1px 0 #0c0a16; }
+
+@media (max-width: 520px) {
+  html[data-tv="90s"] .tv-chin::before { display: none; }
+  html[data-tv="90s"] .tv-brand::after { content: ""; }
+  html[data-tv="90s"] .tv-chin { padding: 8px; }
+}

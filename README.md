@@ -25,7 +25,9 @@ channels of the era: dial a 4-digit code and your video goes in line.
   a 70s wood-grain console with rotary dials and legs, an 80s black-plastic set with silver trim
   and neon, or a 2000s glossy flat screen on a stand. Each changes the TV, the buttons, the
   on-screen display, the title card and the page background (a speaker grille and retro stripes for
-  the 70s, a neon grid and a red LED channel readout for the 80s, a blue glow for the 2000s). "Match the channel" swaps the set to fit the decade of
+  the 70s, a neon grid and a red LED channel readout for the 80s, a blue glow for the 2000s).
+  The default 90s Videovision has a Memphis-style confetti backdrop (triangles, zigzags, squiggles),
+  a glassy highlight on the picture tube, and a control panel with speaker slots and colour-edged buttons. "Match the channel" swaps the set to fit the decade of
   the block you're watching (70s, 80s and 2000s have their own sets; everything else uses the 90s
   one). Your choice is remembered, and it all still works with search, dialing and the queue.
 - **Search** the menu by artist, song, genre or code (accents and punctuation don't matter, so

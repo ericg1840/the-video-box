@@ -1215,3 +1215,18 @@ html[data-tv="90s"] .knob-btn:active { transform: translateY(2px); box-shadow: i
   html[data-tv="90s"] .tv-brand::after { content: ""; }
   html[data-tv="90s"] .tv-chin { padding: 8px; }
 }
+
+/* ---------- shareable links ---------- */
+
+.link-note {
+  max-width: 440px;
+  margin: 12px auto 0;
+  font-family: var(--pixel);
+  font-size: 1.3rem;
+  line-height: 1.1;
+  color: var(--yellow);
+}
+#share { --accent: #ff2bd6; }
+@media (max-width: 520px) {
+  .link-note { font-size: 1.05rem; margin-top: 8px; }
+}

@@ -71,6 +71,7 @@
           <div class="ps-inner">
             <div class="ps-title">PLEASE STAND BY</div>
             <button id="power" class="power-btn">⏻ TURN ON THE TV</button>
+            <p id="link-note" class="link-note" hidden></p>
             <p class="ps-hint">Then dial a 4-digit code to order a video.</p>
           </div>
         </div>
@@ -84,6 +85,7 @@
           <button id="ch-down" class="knob-btn" title="Channel down ( [ )" aria-label="Channel down">CH▼</button>
           <button id="ch-up" class="knob-btn" title="Channel up ( ] )" aria-label="Channel up">CH▲</button>
           <button id="vhs-toggle" class="knob-btn" title="VHS tracking glitches on/off" aria-pressed="true">VHS</button>
+          <button id="share" class="knob-btn" title="Copy a link to this video (L)" aria-label="Copy a link to this video">🔗</button>
           <button id="toggle" class="knob-btn" title="Pause / play (Space)">❚❚</button>
           <button id="skip" class="knob-btn" title="Change channel: skip this video (S)">▶▶|</button>
           <span class="led" id="led" aria-hidden="true"></span>
@@ -167,7 +169,7 @@
   </div>
 
   <footer>
-    Keys: <kbd>0</kbd>–<kbd>9</kbd> dial · <kbd>Space</kbd> pause · <kbd>S</kbd> skip · <kbd>Esc</kbd> clear · <kbd>/</kbd> search · <kbd>[</kbd> <kbd>]</kbd> channel · <kbd>P</kbd> power
+    Keys: <kbd>0</kbd>–<kbd>9</kbd> dial · <kbd>Space</kbd> pause · <kbd>S</kbd> skip · <kbd>Esc</kbd> clear · <kbd>/</kbd> search · <kbd>[</kbd> <kbd>]</kbd> channel · <kbd>P</kbd> power · <kbd>L</kbd> copy link
   </footer>
 
   <script src="videos.js"></script>

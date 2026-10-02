@@ -30,6 +30,11 @@ channels of the era: dial a 4-digit code and your video goes in line.
   a glassy highlight on the picture tube, and a control panel with speaker slots and colour-edged buttons. "Match the channel" swaps the set to fit the decade of
   the block you're watching (70s, 80s and 2000s have their own sets; everything else uses the 90s
   one). Your choice is remembered, and it all still works with search, dialing and the queue.
+- **Shareable links.** The 🔗 button on the TV (or `L`) copies a link to the video that's playing
+  (on phones it opens the share sheet). Open `?code=1523` and the video is waiting at the front of
+  the queue: the stand-by screen says "A friend sent you ...", you turn on the TV, and it plays
+  first, marked "SENT BY A FRIEND". Videos you added yourself are shared as `?v=<YouTube id>`, so the
+  link works for anyone even though your 99xx codes only exist in your browser.
 - **Search** the menu by artist, song, genre or code (accents and punctuation don't matter, so
   `sinead` finds Sinéad and `acdc` finds AC/DC). Press `/` to jump to the search box, `Enter` to
   order when there's exactly one match, `Esc` to clear.
@@ -59,7 +64,7 @@ channels of the era: dial a 4-digit code and your video goes in line.
 | 2900–2999 | Country (32) |
 | 9900–9999 | Your own |
 
-Keys: `0`–`9` dial · `#` random code (within the current block) · `*`/`Esc` clear · `Space` pause · `S` skip · `/` search · `[` `]` channel · `P` power.
+Keys: `0`–`9` dial · `#` random code (within the current block) · `*`/`Esc` clear · `Space` pause · `S` skip · `/` search · `[` `]` channel · `P` power · `L` copy link.
 
 ## Running it
 

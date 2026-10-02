@@ -23,6 +23,18 @@
   const BUMPER_MS = 3400;           // how long the "NOW ENTERING" card stays up
   const MODE_KEY = "videobox.block";
   const VHS_KEY = "videobox.vhs";
+  const TV_KEY = "videobox.tv";
+  // TV sets: look-and-feel by decade. The 90s Videovision is the default;
+  // "auto" swaps the set to match the decade of the channel you're watching.
+  const TV_SETS = [
+    { id: "90s", name: "90s Videovision", sub: "The classic", color: "#19e3d0" },
+    { id: "70s", name: "70s Console", sub: "Wood grain & rotary dials", color: "#ff7a1a" },
+    { id: "80s", name: "80s Black Box", sub: "Black plastic & neon", color: "#ff2bd6" },
+    { id: "2000s", name: "2000s Flat Screen", sub: "Wide, glossy & slim", color: "#3aa0ff" },
+    { id: "auto", name: "Match the channel", sub: "The set changes with the decade", color: "#ffe23d" },
+  ];
+  const TV_BY_ID = Object.fromEntries(TV_SETS.map((t) => [t.id, t]));
+  const TV_FOR_BLOCK = { "70s": "70s", "80s": "80s", "2000s": "2000s" }; // every other block uses the 90s set
   const OSD_MS = 2600;              // how long the "CH 08" display stays up
   const THURSDAY = new Date().getDay() === 4;
   // ch = the channel number shown on the TV's on-screen display
@@ -72,6 +84,9 @@
     ltFrom: $("lt-from"),
     bugCode: $("bug-code"),
     bugBlock: $("bug-block"),
+    tvSet: document.querySelector(".tv"),
+    chinCh: $("chin-ch"),
+    tvChips: $("tv-chips"),
     screen: document.querySelector(".tv-screen"),
     picture: $("picture"),
     vhs: $("vhs"),
@@ -119,6 +134,7 @@
   let vhsTimer = 0;          // schedules the next random tracking glitch
   let glitchTimer = 0;
   let vhsOn = loadVhs();
+  let tvChoice = loadTv();   // a TV_SETS id; "90s" unless the viewer picked another
   let powerTimers = [];
   let consecutiveErrors = 0;
   let lowerThirdTimer = 0;
@@ -220,6 +236,7 @@
     try { localStorage.setItem(MODE_KEY, mode); } catch (e) { /* ignore */ }
     resetUpcoming();
     renderGuide();
+    applyTv(true);
     if (poweredOn) {
       playNext();
       showBumper();
@@ -239,6 +256,7 @@
     autoCount = 0;
     resetUpcoming();
     renderGuide();
+    applyTv(true);
     showBumper();
     showChannelOsd();
   }
@@ -341,6 +359,7 @@
     els.picture.classList.add("crt-off");
     els.led.classList.remove("on");
     els.powerToggle.classList.remove("on");
+    els.chinCh.textContent = "--";
     if (playerReady && player.stopVideo) player.stopVideo();
     current = null;
     delete els.lowerThird.dataset.shownFor;
@@ -388,6 +407,56 @@
     els.lowerThird.classList.add("show");
     clearTimeout(lowerThirdTimer);
     lowerThirdTimer = setTimeout(() => els.lowerThird.classList.remove("show"), LOWER_THIRD_MS);
+  }
+
+  function loadTv() {
+    try {
+      const saved = localStorage.getItem(TV_KEY);
+      return TV_BY_ID[saved] ? saved : "90s";
+    } catch (e) {
+      return "90s";
+    }
+  }
+
+  function currentTv() {
+    return tvChoice === "auto" ? (TV_FOR_BLOCK[activeBlock().id] || "90s") : tvChoice;
+  }
+
+  // Put the chosen TV set on the page (styles key off <html data-tv="...">).
+  function applyTv(animate) {
+    const tv = currentTv();
+    const root = document.documentElement;
+    const changed = root.dataset.tv !== tv;
+    root.dataset.tv = tv;
+    if (changed && animate && poweredOn) {
+      els.tvSet.classList.remove("swap");
+      void els.tvSet.offsetWidth; // restart the animation
+      els.tvSet.classList.add("swap");
+      later(() => els.tvSet.classList.remove("swap"), 600);
+    }
+    renderTvChips();
+  }
+
+  function setTvChoice(id) {
+    if (!TV_BY_ID[id] || id === tvChoice) return;
+    tvChoice = id;
+    try { localStorage.setItem(TV_KEY, tvChoice); } catch (e) { /* ignore */ }
+    applyTv(true);
+  }
+
+  function renderTvChips() {
+    els.tvChips.innerHTML = "";
+    TV_SETS.forEach((t) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "block-chip";
+      btn.style.setProperty("--c", t.color);
+      btn.setAttribute("aria-pressed", String(t.id === tvChoice));
+      btn.title = t.id === "auto" ? `${t.sub} (showing the ${currentTv()} set now)` : t.sub;
+      btn.textContent = t.name;
+      btn.addEventListener("click", () => setTvChoice(t.id));
+      els.tvChips.appendChild(btn);
+    });
   }
 
   function pad2(n) { return String(n).padStart(2, "0"); }
@@ -492,6 +561,7 @@
     if (mode === "auto") text += ` · next block in ${Math.max(0, AUTO_EVERY - autoCount)}`;
     els.guideNow.textContent = text;
     els.bugBlock.textContent = mode === "all" ? "" : b.tag;
+    els.chinCh.textContent = poweredOn ? pad2(b.ch) : "--";
   }
 
   function renderNowPlaying() {
@@ -877,6 +947,7 @@
   topUpQueue();
   renderQueue();
   renderGuide();
+  applyTv(false);
   renderVhsButton();
   renderMenuTabs();
   renderMenu();

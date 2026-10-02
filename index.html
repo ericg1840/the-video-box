@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-tv="90s">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -78,6 +78,7 @@
 
       <div class="tv-chin">
         <div class="tv-brand">VIDEOVISION</div>
+        <span id="chin-ch" class="chin-ch" aria-hidden="true">--</span>
         <div class="tv-knobs">
           <button id="power-toggle" class="knob-btn knob-power" title="Power (P)" aria-label="Power">⏻</button>
           <button id="ch-down" class="knob-btn" title="Channel down ( [ )" aria-label="Channel down">CH▼</button>
@@ -95,6 +96,9 @@
       <h2>Channel guide</h2>
       <div id="guide-chips" class="block-chips"></div>
       <p id="guide-now" class="guide-now" role="status"></p>
+
+      <h3 class="guide-sub">TV set</h3>
+      <div id="tv-chips" class="block-chips"></div>
     </section>
     </div>
 

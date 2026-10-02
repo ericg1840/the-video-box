@@ -992,3 +992,150 @@ html[data-tv="2000s"] .tv-screen.dot::after { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .tv.swap { animation: none; }
 }
+
+/* ---------- TV set polish ---------- */
+
+.chin-ch { display: none; }
+
+/* ===== 70s: speaker grille, nameplate, retro stripes, mustard-and-brown title card ===== */
+html[data-tv="70s"] .tv-chin { justify-content: flex-start; gap: 14px; }
+html[data-tv="70s"] .tv-chin::before {
+  content: "";
+  width: 104px;
+  height: 42px;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.6) 0 2px, transparent 2px 6px),
+    linear-gradient(#b99557, #8b6a33);
+  box-shadow: inset 0 0 0 2px #2b1707, inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 220, 160, 0.3);
+}
+html[data-tv="70s"] .tv-brand {
+  padding: 7px 14px;
+  font-size: 0.72rem;
+  background: linear-gradient(#3a2210, #24130a);
+  border: 1px solid #d6ab62;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgba(255, 220, 160, 0.2);
+}
+html[data-tv="70s"] .tv-knobs { margin-left: auto; }
+html[data-tv="70s"] body::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 44px;
+  height: 30px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(#e0a12c 0 33%, #c8641a 33% 66%, #7a3a12 66%);
+  opacity: 0.85;
+}
+html[data-tv="70s"] .lt-code { background: #e0a12c; color: #3a1d08; }
+html[data-tv="70s"] .lt-body { background: #5a2f12; }
+html[data-tv="70s"] .lt-artist { color: #f0c36a; }
+html[data-tv="70s"] .lt-title { color: #fff1d6; }
+html[data-tv="70s"] .lt-from { color: #e0a12c; }
+@media (max-width: 520px) {
+  html[data-tv="70s"] .tv-chin::before { width: 70px; height: 36px; }
+  html[data-tv="70s"] .tv-brand { font-size: 0.6rem; padding: 6px 8px; }
+}
+
+/* ===== 80s: neon grid floor, pink glow, LED channel readout, neon title card ===== */
+html[data-tv="80s"] body::before {
+  content: "";
+  position: fixed;
+  left: -60%;
+  right: -60%;
+  bottom: 0;
+  height: 60vh;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 43, 214, 0.55) 2px, transparent 2px) 0 0 / 70px 70px,
+    linear-gradient(90deg, rgba(25, 227, 208, 0.5) 2px, transparent 2px) 0 0 / 70px 70px;
+  transform: perspective(380px) rotateX(62deg);
+  transform-origin: bottom;
+  -webkit-mask-image: linear-gradient(transparent, #000 70%);
+  mask-image: linear-gradient(transparent, #000 70%);
+  opacity: 0.8;
+}
+html[data-tv="80s"] .tv {
+  box-shadow:
+    inset 0 0 0 2px #46464d,
+    inset 0 0 0 5px #0a0a0c,
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 70px rgba(255, 43, 214, 0.35),
+    8px 8px 0 #ff2bd6,
+    14px 14px 0 #19e3d0;
+}
+html[data-tv="80s"] .chin-ch {
+  display: inline-block;
+  min-width: 52px;
+  padding: 2px 8px;
+  text-align: center;
+  font-family: var(--pixel);
+  font-size: 1.5rem;
+  line-height: 1.1;
+  color: #ff3b3b;
+  background: #14060a;
+  border: 1px solid #000;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 6px rgba(255, 59, 59, 0.9);
+  box-shadow: inset 0 0 6px #000;
+}
+html[data-tv="80s"] .lt-code { background: #ff2bd6; color: #fff; text-shadow: 2px 2px 0 #19e3d0; border-color: #19e3d0; }
+html[data-tv="80s"] .lt-body { background: rgba(8, 4, 22, 0.92); border-color: #19e3d0; }
+html[data-tv="80s"] .lt-artist { color: #5ef0ff; }
+html[data-tv="80s"] .lt-from { color: #ff7ae8; }
+@media (max-width: 520px) {
+  html[data-tv="80s"] .chin-ch { min-width: 40px; font-size: 1.2rem; }
+  html[data-tv="80s"] .tv-brand::after { content: ""; }
+}
+
+/* ===== 2000s: ambient glow, brushed bezel, sleek glass title card ===== */
+html[data-tv="2000s"] .tv {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.18) 0 1px, transparent 1px 4px),
+    linear-gradient(180deg, #eceef3, #b9bcc7 60%, #9a9eab);
+  box-shadow:
+    inset 0 2px 0 #fff,
+    inset 0 -3px 0 rgba(0, 0, 0, 0.25),
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px #6a6e7c,
+    0 0 90px rgba(58, 160, 255, 0.4);
+}
+html[data-tv="2000s"] .tv-screen::before {
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.13) 0 22%, transparent 22.3%),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent 30%);
+}
+html[data-tv="2000s"] .lower-third { filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55)); }
+html[data-tv="2000s"] .lt-code,
+html[data-tv="2000s"] .lt-body { transform: none; }
+html[data-tv="2000s"] .lt-code {
+  background: linear-gradient(#6ab8ff, #1a6fe0);
+  color: #fff;
+  border: 0;
+  border-radius: 8px 0 0 8px;
+  font-family: system-ui, sans-serif;
+  font-weight: 800;
+}
+html[data-tv="2000s"] .lt-body {
+  background: linear-gradient(rgba(18, 34, 78, 0.88), rgba(10, 18, 48, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.2;
+}
+html[data-tv="2000s"] .lt-artist { color: #8fd0ff; font-weight: 700; letter-spacing: 0.06em; }
+html[data-tv="2000s"] .lt-title { font-weight: 600; }
+html[data-tv="2000s"] .lt-from { color: #cfe3ff; }
+
+/* small phones: keep the "please stand by" card inside the picture */
+@media (max-width: 520px) {
+  .ps-title { font-size: 1.5rem; }
+  .ps-inner { padding: 14px 16px; }
+  .ps-hint { display: none; }
+}

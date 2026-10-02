@@ -85,6 +85,7 @@
     bugCode: $("bug-code"),
     bugBlock: $("bug-block"),
     tvSet: document.querySelector(".tv"),
+    chinCh: $("chin-ch"),
     tvChips: $("tv-chips"),
     screen: document.querySelector(".tv-screen"),
     picture: $("picture"),
@@ -358,6 +359,7 @@
     els.picture.classList.add("crt-off");
     els.led.classList.remove("on");
     els.powerToggle.classList.remove("on");
+    els.chinCh.textContent = "--";
     if (playerReady && player.stopVideo) player.stopVideo();
     current = null;
     delete els.lowerThird.dataset.shownFor;
@@ -559,6 +561,7 @@
     if (mode === "auto") text += ` · next block in ${Math.max(0, AUTO_EVERY - autoCount)}`;
     els.guideNow.textContent = text;
     els.bugBlock.textContent = mode === "all" ? "" : b.tag;
+    els.chinCh.textContent = poweredOn ? pad2(b.ch) : "--";
   }
 
   function renderNowPlaying() {

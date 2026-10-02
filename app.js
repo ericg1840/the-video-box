@@ -86,6 +86,8 @@
     bugBlock: $("bug-block"),
     tvSet: document.querySelector(".tv"),
     chinCh: $("chin-ch"),
+    shareBtn: $("share"),
+    linkNote: $("link-note"),
     tvChips: $("tv-chips"),
     screen: document.querySelector(".tv-screen"),
     picture: $("picture"),
@@ -333,6 +335,7 @@
     clearPowerTimers();
     els.screen.classList.remove("dot");
     els.powerScreen.hidden = true;
+    els.linkNote.hidden = true;
     els.picture.classList.remove("crt-off");
     els.picture.classList.add("crt-on");
     later(() => els.picture.classList.remove("crt-on"), 700);
@@ -403,7 +406,8 @@
     els.ltCode.textContent = v.code;
     els.ltArtist.textContent = v.artist || "";
     els.ltTitle.textContent = v.title ? `"${v.title}"` : "";
-    els.ltFrom.textContent = current.mine ? "★ REQUESTED BY YOU ★" : `REQUESTED FROM ${current.from.toUpperCase()}`;
+    els.ltFrom.textContent = current.shared ? "★ SENT BY A FRIEND ★"
+      : current.mine ? "★ REQUESTED BY YOU ★" : `REQUESTED FROM ${current.from.toUpperCase()}`;
     els.lowerThird.classList.add("show");
     clearTimeout(lowerThirdTimer);
     lowerThirdTimer = setTimeout(() => els.lowerThird.classList.remove("show"), LOWER_THIRD_MS);
@@ -585,7 +589,7 @@
       t.textContent = [q.video.artist, q.video.title].filter(Boolean).join(" – ") || `Video ${q.video.id}`;
       const f = document.createElement("div");
       f.className = "q-from";
-      f.textContent = q.mine ? "★ your order" : `ordered from ${q.from}`;
+      f.textContent = q.shared ? "★ from a friend" : q.mine ? "★ your order" : `ordered from ${q.from}`;
       meta.append(t, f);
       li.append(code, meta);
       els.queue.appendChild(li);
@@ -682,6 +686,96 @@
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  // ---------- shareable links ----------
+  // ?code=1523 plays a built-in video; ?v=<YouTube id> plays any video (used for ones a viewer
+  // added, since their 99xx codes only exist in their own browser).
+
+  function videoLabel(v) {
+    return [v.artist, v.title].filter(Boolean).join(" – ");
+  }
+
+  function shareUrl(video) {
+    const url = new URL(location.href);
+    url.search = "";
+    url.hash = "";
+    if (window.VIDEO_POOL.some((v) => v.id === video.id)) url.searchParams.set("code", video.code);
+    else url.searchParams.set("v", video.id);
+    return url.toString();
+  }
+
+  // A link someone sent us: queue its video first and tell the viewer it's waiting.
+  function loadSharedLink() {
+    let params;
+    try { params = new URLSearchParams(location.search); } catch (e) { return; }
+    const code = params.get("code");
+    const vid = params.get("v");
+    if (!code && !vid) return;
+    let video = code ? byCode(code) : null;
+    if (!video && vid && /^[\w-]{11}$/.test(vid)) {
+      video = catalog().find((v) => v.id === vid) || { code: "----", id: vid, title: "", artist: "", genre: "custom" };
+    }
+    try { history.replaceState(null, "", location.pathname); } catch (e) { /* ignore */ }
+    if (!video) {
+      setLcd(null, "LINK CODE NOT FOUND");
+      resetLcdSoon();
+      return;
+    }
+    queue = queue.filter((q) => q.video.id !== video.id);
+    queue.unshift({ video, from: "A FRIEND", mine: true, shared: true });
+    const label = videoLabel(video);
+    els.linkNote.textContent = label
+      ? `📼 A friend sent you “${label}”`
+      : "📼 A friend sent you a video";
+    els.linkNote.hidden = false;
+    setLcd(null, "A FRIEND SENT A VIDEO");
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) { /* fall through to the old way */ }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      return ok;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async function shareCurrent() {
+    if (!poweredOn || !current) {
+      setLcd(null, "TURN ON THE TV FIRST", true);
+      resetLcdSoon();
+      return;
+    }
+    const v = current.video;
+    const url = shareUrl(v);
+    // On phones, open the native share sheet; elsewhere copy the link.
+    if (navigator.share && window.matchMedia && window.matchMedia("(pointer: coarse)").matches) {
+      try {
+        await navigator.share({ title: "The Video Box", text: `Watch ${videoLabel(v) || "this"} on The Video Box`, url });
+        return;
+      } catch (e) {
+        if (e && e.name === "AbortError") return;
+      }
+    }
+    if (await copyText(url)) {
+      showOsd("LINK COPIED", v.code === "----" ? "" : `#${v.code}`);
+      setLcd(null, "LINK COPIED!", true);
+    } else {
+      window.prompt("Copy this link:", url);
+    }
+    resetLcdSoon();
   }
 
   // ---------- keypad ----------
@@ -886,6 +980,7 @@
 
   els.power.addEventListener("click", powerOn);
   els.toggle.addEventListener("click", togglePlay);
+  els.shareBtn.addEventListener("click", shareCurrent);
   els.powerToggle.addEventListener("click", () => (poweredOn ? powerOff() : powerOn()));
   els.chUp.addEventListener("click", () => stepChannel(1));
   els.chDown.addEventListener("click", () => stepChannel(-1));
@@ -941,10 +1036,12 @@
     else if (e.key === "/") { e.preventDefault(); els.search.focus(); }
     else if (e.key === "]") { e.preventDefault(); stepChannel(1); }
     else if (e.key === "[") { e.preventDefault(); stepChannel(-1); }
+    else if (e.key === "l" || e.key === "L") { e.preventDefault(); shareCurrent(); }
     else if (e.key === "p" || e.key === "P") { e.preventDefault(); if (poweredOn) powerOff(); else powerOn(); }
   });
 
   topUpQueue();
+  loadSharedLink();
   renderQueue();
   renderGuide();
   applyTv(false);

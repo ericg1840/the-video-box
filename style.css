@@ -764,3 +764,231 @@ kbd {
   .bumper.show .bumper-card { animation: none; }
   .tv-picture.glitch, .vhs.on .vhs-band { animation: none; }
 }
+
+/* ---------- TV sets by decade (the 90s Videovision above is the default) ---------- */
+
+.tv { position: relative; }
+.guide-sub {
+  margin: 16px 0 8px;
+  font-family: var(--pixel);
+  font-weight: 400;
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.tv.swap { animation: tv-swap 0.5s ease-out; }
+@keyframes tv-swap {
+  0%   { transform: scale(0.96) rotate(-0.6deg); filter: brightness(1.7) saturate(1.5); }
+  100% { transform: none; filter: none; }
+}
+
+/* ===== 70s: wood-grain console with rotary dials ===== */
+html[data-tv="70s"] body {
+  background-color: #1a1008;
+  background-image:
+    radial-gradient(circle at 15% 20%, #c8641a 0 6px, transparent 7px),
+    radial-gradient(circle at 80% 70%, #9aa43a 0 8px, transparent 9px),
+    radial-gradient(circle at 50% 92%, #e0a12c 0 5px, transparent 6px),
+    repeating-linear-gradient(90deg, rgba(255, 160, 60, 0.035) 0 3px, transparent 3px 24px);
+  background-size: 380px 380px, 460px 460px, 320px 320px, auto;
+}
+html[data-tv="70s"] .tv {
+  background:
+    repeating-linear-gradient(92deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 7px, rgba(255, 200, 120, 0.07) 7px 9px, transparent 9px 17px),
+    repeating-linear-gradient(88deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 13px),
+    linear-gradient(180deg, #8a5426, #6b3d1a 55%, #54300f);
+  border-radius: 14px;
+  padding: 26px 26px 14px;
+  margin-bottom: 26px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 220, 160, 0.25),
+    inset 0 -6px 0 rgba(0, 0, 0, 0.35),
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    8px 8px 0 #c8641a;
+}
+/* tapered wooden legs */
+html[data-tv="70s"] .tv::before,
+html[data-tv="70s"] .tv::after {
+  content: "";
+  position: absolute;
+  bottom: -22px;
+  width: 38px;
+  height: 24px;
+  background: linear-gradient(90deg, #4a2a10, #6b3d1a 50%, #3a2210);
+  clip-path: polygon(0 0, 100% 0, 78% 100%, 22% 100%);
+}
+html[data-tv="70s"] .tv::before { left: 9%; }
+html[data-tv="70s"] .tv::after { right: 9%; }
+html[data-tv="70s"] .tv-screen {
+  border-radius: 52px / 44px;
+  box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.85), 0 0 0 10px #1b110a, 0 0 0 14px #d6ab62, 0 0 0 17px #3a2210;
+}
+html[data-tv="70s"] .tv-picture { filter: sepia(0.28) saturate(1.15) contrast(1.05); }
+html[data-tv="70s"] .tv-chin { margin-top: 18px; }
+html[data-tv="70s"] .tv-brand {
+  color: #e8c88a;
+  letter-spacing: 0.22em;
+  text-shadow: 1px 1px 0 #2b1707;
+}
+html[data-tv="70s"] .knob-btn {
+  min-width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f1d9a4, #b88a45 55%, #5a3a14);
+  border: 2px solid #2b1707;
+  color: #2b1707;
+  font-size: 0.64rem;
+  box-shadow: 0 3px 0 #2b1707, inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+html[data-tv="70s"] .knob-btn[aria-pressed="true"]:not(.knob-power) { color: #8a2a00; }
+html[data-tv="70s"] .knob-power { color: #8a1a1a; }
+html[data-tv="70s"] .knob-power.on { color: #1e6b2e; }
+html[data-tv="70s"] .led { background: #4a2a10; }
+html[data-tv="70s"] .led.on { background: #ff9a2e; box-shadow: 0 0 8px #ff9a2e; }
+html[data-tv="70s"] .osd { color: #ffb347; text-shadow: 3px 3px 0 #000, 0 0 8px rgba(255, 150, 40, 0.6); }
+
+/* ===== 80s: black plastic with silver trim and neon ===== */
+html[data-tv="80s"] body {
+  background-color: #07040f;
+  background-image:
+    linear-gradient(rgba(255, 43, 214, 0.11) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25, 227, 208, 0.09) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 0%, rgba(255, 43, 214, 0.28), transparent 60%);
+  background-size: 42px 42px, 42px 42px, auto;
+}
+html[data-tv="80s"] .tv {
+  background: linear-gradient(180deg, #2b2b30, #121214 40%, #0b0b0d);
+  border-radius: 8px;
+  padding: 20px 22px 10px;
+  box-shadow:
+    inset 0 0 0 2px #46464d,
+    inset 0 0 0 5px #0a0a0c,
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    8px 8px 0 #ff2bd6,
+    14px 14px 0 #19e3d0;
+}
+html[data-tv="80s"] .tv-screen {
+  border-radius: 16px / 12px;
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.9), 0 0 0 5px #08080a, 0 0 0 9px #8e8e98, 0 0 0 11px #08080a;
+}
+html[data-tv="80s"] .tv-chin {
+  margin-top: 20px;
+  padding: 8px 12px;
+  background: linear-gradient(#cfcfd8, #8c8c96);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 0 #000;
+}
+html[data-tv="80s"] .tv-brand { color: #25252b; font-style: italic; font-size: 0.8rem; }
+html[data-tv="80s"] .tv-brand::after { content: "  ·  STEREO"; font-size: 0.6rem; letter-spacing: 0.1em; }
+html[data-tv="80s"] .knob-btn {
+  min-width: 40px;
+  padding: 5px 8px;
+  border-radius: 3px;
+  background: linear-gradient(#55555c, #2b2b30);
+  border: 1px solid #000;
+  color: #e8e8ee;
+  font-size: 0.7rem;
+  box-shadow: 0 2px 0 #000, inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+html[data-tv="80s"] .knob-btn[aria-pressed="true"]:not(.knob-power) { color: #5ef0ff; }
+html[data-tv="80s"] .knob-power { color: #ff8a8a; }
+html[data-tv="80s"] .knob-power.on { color: #7dff9b; }
+html[data-tv="80s"] .osd { color: #5ef0ff; text-shadow: 3px 3px 0 #ff2bd6, 0 0 8px rgba(94, 240, 255, 0.6); }
+
+/* ===== 2000s: slim, glossy flat screen on a stand ===== */
+html[data-tv="2000s"] body {
+  background-color: #070b16;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(80, 140, 255, 0.3), transparent 60%),
+    radial-gradient(circle at 85% 70%, rgba(25, 227, 208, 0.1), transparent 40%);
+  background-size: auto;
+}
+html[data-tv="2000s"] .tv {
+  background: linear-gradient(180deg, #e6e8ee, #b9bcc7 60%, #9a9eab);
+  border-radius: 12px;
+  padding: 12px 12px 6px;
+  margin-bottom: 40px;
+  box-shadow: inset 0 2px 0 #fff, inset 0 -3px 0 rgba(0, 0, 0, 0.25), 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px #6a6e7c;
+}
+/* neck + foot of the stand */
+html[data-tv="2000s"] .tv::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -30px;
+  width: 170px;
+  height: 30px;
+  margin-left: -85px;
+  background: linear-gradient(#c3c6d0, #7e8290);
+  clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%);
+}
+html[data-tv="2000s"] .tv::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -35px;
+  width: 270px;
+  height: 7px;
+  margin-left: -135px;
+  border-radius: 4px;
+  background: linear-gradient(#a9adba, #6d717f);
+}
+html[data-tv="2000s"] .tv-screen {
+  aspect-ratio: 16 / 9;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 0 6px #0b0c10, 0 0 0 7px #4a4d58;
+}
+/* glossy reflection across the glass */
+html[data-tv="2000s"] .tv-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.13) 0 22%, transparent 22.3%);
+}
+html[data-tv="2000s"] .scanlines { display: none; }
+html[data-tv="2000s"] .tv-chin { padding: 10px 6px 2px; }
+html[data-tv="2000s"] .tv-brand { color: #3b3f4c; font-family: system-ui, sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.3em; }
+html[data-tv="2000s"] .tv-brand::after { content: " HD"; color: #0a5cff; }
+html[data-tv="2000s"] .knob-btn {
+  min-width: 44px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: linear-gradient(#fdfdff, #cfd2dc);
+  border: 1px solid #8a8e9c;
+  color: #2a2d38;
+  font-size: 0.78rem;
+  box-shadow: inset 0 1px 0 #fff;
+}
+html[data-tv="2000s"] .knob-btn[aria-pressed="true"]:not(.knob-power) { color: #0a5cff; }
+html[data-tv="2000s"] .knob-power { color: #b3261e; }
+html[data-tv="2000s"] .knob-power.on { color: #1b7a34; }
+html[data-tv="2000s"] .led { background: #26425e; }
+html[data-tv="2000s"] .led.on { background: #3aa0ff; box-shadow: 0 0 8px #3aa0ff; }
+html[data-tv="2000s"] .osd {
+  font-family: system-ui, sans-serif;
+  font-weight: 300;
+  color: #fff;
+  text-shadow: 0 0 10px #3aa0ff, 2px 2px 0 rgba(0, 0, 0, 0.55);
+}
+/* a flat panel just fades; no CRT collapse */
+html[data-tv="2000s"] .tv-picture.crt-off { animation: flat-off 0.4s ease-in forwards; }
+html[data-tv="2000s"] .tv-picture.crt-on { animation: flat-on 0.5s ease-out; }
+html[data-tv="2000s"] .tv-screen.dot::after { display: none; }
+@keyframes flat-off { to { opacity: 0; filter: brightness(0.3); } }
+@keyframes flat-on { from { opacity: 0; filter: brightness(0.3); } to { opacity: 1; filter: none; } }
+
+@media (max-width: 520px) {
+  html[data-tv="70s"] .knob-btn { min-width: 40px; height: 40px; font-size: 0.58rem; }
+  html[data-tv="70s"] .tv { padding: 18px 16px 10px; }
+  html[data-tv="2000s"] .tv-brand::after { content: ""; }
+  html[data-tv="2000s"] .knob-btn { min-width: 34px; padding: 5px 6px; font-size: 0.68rem; }
+  html[data-tv="80s"] .knob-btn { min-width: 34px; padding: 5px 6px; font-size: 0.64rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv.swap { animation: none; }
+}

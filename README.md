@@ -21,6 +21,12 @@ channels of the era: dial a 4-digit code and your video goes in line.
   Every block has a channel number (All Hits is CH 03, Totally 80s is CH 08, Grunge is CH 11, ...).
   Now and then a VHS tracking glitch rolls up the picture; the VHS button turns it off (it starts
   off for people who prefer reduced motion).
+- **TV sets by decade.** Under the channel guide, pick a TV set: the 90s Videovision (the default),
+  a 70s wood-grain console with rotary dials and legs, an 80s black-plastic set with silver trim
+  and neon, or a 2000s glossy flat screen on a stand. Each changes the TV, the buttons, the
+  on-screen display and the page background. "Match the channel" swaps the set to fit the decade of
+  the block you're watching (70s, 80s and 2000s have their own sets; everything else uses the 90s
+  one). Your choice is remembered, and it all still works with search, dialing and the queue.
 - **Search** the menu by artist, song, genre or code (accents and punctuation don't matter, so
   `sinead` finds Sinéad and `acdc` finds AC/DC). Press `/` to jump to the search box, `Enter` to
   order when there's exactly one match, `Esc` to clear.
